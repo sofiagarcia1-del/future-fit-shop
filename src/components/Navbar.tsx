@@ -15,7 +15,7 @@ export function Navbar() {
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <Link to="/shop" className="smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>Shop</Link>
-          <Link to="/shop" search={{ category: "Outerwear" } as never} className="smooth hover:text-foreground">New</Link>
+          <Link to="/shop" className="smooth hover:text-foreground">New</Link>
           <Link to="/shop" className="smooth hover:text-foreground">Collections</Link>
           <Link to="/shop" className="smooth hover:text-foreground">AI Stylist</Link>
         </nav>
