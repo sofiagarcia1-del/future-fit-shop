@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { fetchProduct, fetchProducts } from "@/lib/products";
+import { fetchProduct, fetchProducts, type Product } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ShoppingBag, Heart, ArrowLeft } from "lucide-react";
 import { useCart } from "@/lib/cart";
