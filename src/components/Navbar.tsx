@@ -1,34 +1,88 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Search, Menu } from "lucide-react";
+import { ShoppingBag, Search, Menu, Heart, User, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 
+const NAV = [
+  { to: "/", label: "Inicio" },
+  { to: "/shop", label: "Mujer" },
+  { to: "/shop", label: "Hombre" },
+  { to: "/shop", label: "Marcas" },
+  { to: "/shop", label: "Categorías" },
+];
+
 export function Navbar() {
   const { count, setOpen } = useCart();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
-      <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-xs font-bold smooth group-hover:scale-110">T</div>
-          <span className="font-display font-bold tracking-widest text-lg">TRYFIT</span>
+    <header
+      className={`sticky top-0 z-40 smooth border-b ${
+        scrolled
+          ? "bg-background/70 backdrop-blur-xl border-border"
+          : "bg-background border-transparent"
+      }`}
+    >
+      <div className="mx-auto max-w-[1400px] px-6 h-20 flex items-center justify-between gap-8">
+        <Link to="/" className="flex items-center gap-2 group shrink-0">
+          <span className="font-display text-3xl tracking-tight italic">Tryfit</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <Link to="/shop" className="smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>Shop</Link>
-          <Link to="/shop" className="smooth hover:text-foreground">New</Link>
-          <Link to="/shop" className="smooth hover:text-foreground">Collections</Link>
-          <Link to="/shop" className="smooth hover:text-foreground">AI Stylist</Link>
+        <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.14em] text-foreground/75">
+          {NAV.map((n, i) => (
+            <Link key={i} to={n.to} className="underline-grow smooth hover:text-foreground">
+              {n.label}
+            </Link>
+          ))}
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-1.5 text-foreground"
+          >
+            <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+            AI Try-On
+          </Link>
+          <Link to="/shop" className="underline-grow smooth hover:text-foreground">
+            Mis pedidos
+          </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="hidden sm:inline-flex"><Search className="w-5 h-5" /></Button>
-          <Button variant="ghost" size="icon" className="relative" onClick={() => setOpen(true)}>
-            <ShoppingBag className="w-5 h-5" />
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex hover:bg-muted">
+            <Search className="w-[18px] h-[18px]" />
+          </Button>
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex hover:bg-muted">
+            <Heart className="w-[18px] h-[18px]" />
+          </Button>
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex hover:bg-muted">
+            <User className="w-[18px] h-[18px]" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative hover:bg-muted"
+            onClick={() => setOpen(true)}
+          >
+            <ShoppingBag className="w-[18px] h-[18px]" />
             {count > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center gradient-bg">{count}</span>
+              <span
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-medium flex items-center justify-center"
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              >
+                {count}
+              </span>
             )}
           </Button>
-          <Button variant="ghost" size="icon" className="md:hidden"><Menu className="w-5 h-5" /></Button>
+          <Button variant="ghost" size="icon" className="lg:hidden">
+            <Menu className="w-5 h-5" />
+          </Button>
         </div>
       </div>
     </header>
