@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Product } from "./products";
+import { readStorage, writeStorage } from "@/lib/storage";
 
 export type CartItem = { product: Product; qty: number };
 
@@ -22,15 +23,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = localStorage.getItem("tryfit-cart");
-      if (raw) setItems(JSON.parse(raw));
-    } catch {}
+    setItems(readStorage<CartItem[]>("tryfit-cart", []));
   }, []);
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("tryfit-cart", JSON.stringify(items));
+    writeStorage("tryfit-cart", items);
   }, [items]);
 
   const add = (p: Product) =>

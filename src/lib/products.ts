@@ -1,3 +1,5 @@
+import { fetchProductFromDb, fetchProductsFromDb } from "@/services/products.service";
+
 export type Product = {
   id: string;
   name: string;
@@ -20,11 +22,15 @@ const CATALOG: Product[] = [
 ];
 
 export async function fetchProducts(): Promise<Product[]> {
+  const fromDb = await fetchProductsFromDb();
+  if (fromDb?.length) return fromDb;
   await new Promise((r) => setTimeout(r, 200));
   return CATALOG;
 }
 
 export async function fetchProduct(id: string): Promise<Product | undefined> {
+  const fromDb = await fetchProductFromDb(id);
+  if (fromDb) return fromDb;
   await new Promise((r) => setTimeout(r, 150));
   return CATALOG.find((p) => p.id === id);
 }

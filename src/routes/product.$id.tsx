@@ -4,6 +4,8 @@ import { fetchProduct, fetchProducts, type Product } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ShoppingBag, Heart, ArrowLeft } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
+import { cn } from "@/lib/utils";
 import { TryOnModal } from "@/components/TryOnModal";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -45,6 +47,7 @@ const COLORS = [
 function ProductPage() {
   const { product, related } = Route.useLoaderData();
   const { add, setOpen } = useCart();
+  const { has, toggle } = useWishlist();
   const [size, setSize] = useState("M");
   const [color, setColor] = useState(COLORS[0].name);
   const [tryOn, setTryOn] = useState(false);
@@ -120,8 +123,14 @@ function ProductPage() {
               <Button size="lg" variant="outline" className="h-14 rounded-full border-foreground/30 hover:bg-muted text-sm uppercase tracking-[0.16em]" onClick={() => { add(product); setOpen(true); }}>
                 <ShoppingBag className="w-4 h-4 mr-2" /> Añadir a la bolsa
               </Button>
-              <Button size="lg" variant="outline" className="h-14 w-14 rounded-full border-foreground/30 hover:bg-muted">
-                <Heart className="w-4 h-4" />
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-14 w-14 rounded-full border-foreground/30 hover:bg-muted"
+                onClick={() => toggle(product)}
+                aria-label={has(product.id) ? "Quitar de wishlist" : "Añadir a wishlist"}
+              >
+                <Heart className={cn("w-4 h-4", has(product.id) && "fill-foreground")} />
               </Button>
             </div>
           </div>

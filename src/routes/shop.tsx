@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type Product } from "@/lib/products";
+import { sortProducts, type SortOption } from "@/lib/sort-products";
 import { SlidersHorizontal } from "lucide-react";
 
 export const Route = createFileRoute("/shop")({
@@ -21,8 +22,9 @@ function Shop() {
   const products = Route.useLoaderData() as Product[];
   const categories = ["Todo", ...Array.from(new Set(products.map((p) => p.category)))];
   const [active, setActive] = useState("Todo");
-  const [sort, setSort] = useState("Destacados");
-  const visible = active === "Todo" ? products : products.filter((p) => p.category === active);
+  const [sort, setSort] = useState<SortOption>("Destacados");
+  const filtered = active === "Todo" ? products : products.filter((p) => p.category === active);
+  const visible = useMemo(() => sortProducts(filtered, sort), [filtered, sort]);
 
   return (
     <div className="mx-auto max-w-[1400px] px-6 py-12 md:py-20">
@@ -52,7 +54,7 @@ function Shop() {
           </button>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value)}
+            onChange={(e) => setSort(e.target.value as SortOption)}
             className="bg-transparent border border-border rounded-full px-4 py-2 text-xs uppercase tracking-[0.14em] focus:outline-none focus:border-foreground smooth"
           >
             {["Destacados", "Novedades", "Precio: menor a mayor", "Precio: mayor a menor"].map((s) => (

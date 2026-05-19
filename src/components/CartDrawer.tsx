@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
@@ -47,7 +48,11 @@ export function CartDrawer() {
               <span className="font-medium tabular-nums">${total}</span>
             </div>
             <p className="text-xs text-muted-foreground">Envío e impuestos calculados al pagar.</p>
-            <Button className="w-full h-12 rounded-full btn-primary-bg border-0 text-sm uppercase tracking-[0.16em]">Ir al checkout</Button>
+            <Button asChild className="w-full h-12 rounded-full btn-primary-bg border-0 text-sm uppercase tracking-[0.16em]">
+              <Link to="/checkout" onClick={() => setOpen(false)}>
+                Ir al checkout
+              </Link>
+            </Button>
             <button onClick={clear} className="text-xs text-muted-foreground hover:text-foreground w-full">Vaciar bolsa</button>
           </div>
         )}
