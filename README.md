@@ -41,9 +41,18 @@ cp .env.example .env
 - `supabase/migrations/20250520100000_try_on_results.sql`
 - `supabase/migrations/20250520110000_user_photos_storage.sql`
 
-5. En Supabase → Authentication → Providers, activa **Google** y añade la URL de callback:
+5. En Supabase → **Authentication** → **URL Configuration** (producción Cloudflare):
 
-`{VITE_APP_URL}/auth/callback`
+| Campo | Valor |
+|-------|--------|
+| Site URL | `https://tu-app.workers.dev` |
+| Redirect URLs | `https://tu-app.workers.dev/auth/callback` y `https://tu-app.workers.dev/**` |
+
+En **Google Cloud Console**, la URI de redirección autorizada es la de **Supabase**, no la de Cloudflare:
+
+`https://TU_PROJECT_REF.supabase.co/auth/v1/callback`
+
+(La ves en Supabase → Providers → Google.)
 
 6. (Opcional) Usuario admin: tras el primer login, asigna rol `admin` en `rol_x_user` para el `id` de `public.users`.
 
@@ -75,7 +84,24 @@ supabase/migrations/  # Esquema relacional + RLS + seeds
 
 ## Despliegue
 
-El proyecto incluye configuración **Cloudflare Workers** (`wrangler.jsonc`). Tras `npm run build`, despliega el artefacto en `dist/server` según tu flujo TanStack Start / Wrangler.
+El proyecto incluye configuración **Cloudflare Workers** (`wrangler.jsonc`). Tras `npm run build`, despliega con `npx wrangler deploy`.
+
+### Variables en Cloudflare (obligatorio para Try-On)
+
+En el dashboard del Worker → **Settings** → **Variables and Secrets**, añade **todas** estas (no solo FASHN):
+
+| Nombre | Tipo | Notas |
+|--------|------|--------|
+| `FASHN_API_KEY` | **Secret** | Clave de app.fashn.ai |
+| `FASHN_BASE_URL` | Text | `https://api.fashn.ai/v1` |
+| `VITE_SUPABASE_URL` | Text | Misma URL que en `.env` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Text | Clave pública Supabase |
+
+El try-on consulta `GET /api/try-on` en el Worker; si falta alguna variable, el modal indica cuál.
+
+Tras añadir variables: `npm run build` y `npx wrangler deploy`.
+
+Comprueba en el navegador: `https://TU-WORKER.workers.dev/api/try-on` → debe devolver `"fashnConfigured": true` y `"supabaseConfigured": true`.
 
 ## Virtual Try-On (FASHN AI)
 

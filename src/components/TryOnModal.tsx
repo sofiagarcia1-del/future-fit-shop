@@ -28,6 +28,7 @@ export function TryOnModal({
     errorMessage,
     loadingProfile,
     canUseApi,
+    configHint,
     reset,
     loadProfilePhoto,
     handleFile,
@@ -92,7 +93,8 @@ export function TryOnModal({
 
         {!canUseApi && (
           <div className="mx-8 mb-4 rounded-xl bg-muted px-4 py-3 text-xs text-muted-foreground">
-            Configura Supabase y <code className="text-foreground">FASHN_API_KEY</code> en el servidor para activar FASHN AI.
+            {configHint ??
+              "Configura las variables del Worker en Cloudflare (FASHN_API_KEY y Supabase) y vuelve a desplegar."}
           </div>
         )}
 

@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
-import { getAuthCallbackUrl } from "@/features/auth/auth.config";
 import type { AuthState } from "@/features/auth/types";
 import { ensureUserSynced } from "@/services/users.service";
 
@@ -42,10 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
+    if (typeof window === "undefined") {
+      return { error: new Error("Inicia sesión desde el navegador") };
+    }
+
+    // Siempre el dominio actual (Cloudflare, localhost, etc.) — no usar VITE_APP_URL del build
+    const redirectTo = `${window.location.origin.replace(/\/$/, "")}/auth/callback`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getAuthCallbackUrl(),
+        redirectTo,
         skipBrowserRedirect: false,
       },
     });

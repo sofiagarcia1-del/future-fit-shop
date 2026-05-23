@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { AuthError, jsonError, requireRequestAuth } from "@/server/auth/request-auth";
-import { isFashnConfigured, getSupabasePublicKey, getSupabaseUrl } from "@/server/env";
+import { getTryOnEnvStatus } from "@/server/env";
 import { FashnApiError } from "@/server/fashn/fashn-api";
 import { startTryOnFlow } from "@/server/try-on/try-on.service";
 import { TryOnDbError } from "@/server/try-on/try-on.errors";
@@ -11,12 +11,8 @@ export const Route = createFileRoute("/api/try-on")({
   server: {
     handlers: {
       GET: async () => {
-        const url = getSupabaseUrl();
-        const key = getSupabasePublicKey();
-        return Response.json({
-          fashnConfigured: isFashnConfigured(),
-          supabaseConfigured: Boolean(url && key),
-        });
+        const status = getTryOnEnvStatus();
+        return Response.json(status);
       },
       POST: async ({ request }) => {
         try {

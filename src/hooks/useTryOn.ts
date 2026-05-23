@@ -9,7 +9,7 @@ import {
   waitForTryOnCompletion,
 } from "@/services/try-on.api";
 import type { TryOnUiStatus } from "@/types/try-on";
-import { fetchTryOnServerConfig } from "@/lib/try-on-config";
+import { fetchTryOnServerConfig, formatTryOnConfigHint } from "@/lib/try-on-config";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -24,11 +24,13 @@ export function useTryOn(product: Product) {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [canUseApi, setCanUseApi] = useState(false);
+  const [configHint, setConfigHint] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchTryOnServerConfig().then(
-      (cfg) => setCanUseApi(cfg.supabaseConfigured && cfg.fashnConfigured),
-    );
+    void fetchTryOnServerConfig().then((cfg) => {
+      setCanUseApi(cfg.supabaseConfigured && cfg.fashnConfigured);
+      setConfigHint(formatTryOnConfigHint(cfg) || null);
+    });
   }, []);
 
   const reset = useCallback(() => {
@@ -178,6 +180,7 @@ export function useTryOn(product: Product) {
     errorMessage,
     loadingProfile,
     canUseApi,
+    configHint,
     reset,
     loadProfilePhoto,
     handleFile,

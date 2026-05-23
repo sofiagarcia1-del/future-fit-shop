@@ -13,22 +13,53 @@ function AuthCallbackPage() {
   useEffect(() => {
     let cancelled = false;
 
+    const goAccount = () => {
+      if (!cancelled) navigate({ to: "/account", replace: true });
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        goAccount();
+      }
+    });
+
     const finish = async () => {
+      // PKCE: ?code= en query
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (cancelled) return;
+        if (!error) {
+          goAccount();
+          return;
+        }
+      }
+
       const { data, error } = await supabase.auth.getSession();
       if (cancelled) return;
-
-      if (error || !data.session) {
-        navigate({ to: "/account", replace: true });
+      if (!error && data.session) {
+        goAccount();
         return;
       }
 
-      navigate({ to: "/account", replace: true });
+      // Último intento tras detectSessionInUrl
+      await new Promise((r) => setTimeout(r, 500));
+      const retry = await supabase.auth.getSession();
+      if (cancelled) return;
+      goAccount();
+      if (!retry.data.session) {
+        console.warn("[Tryfit] OAuth callback sin sesión. Revisa Redirect URLs en Supabase.");
+      }
     };
 
     void finish();
 
     return () => {
       cancelled = true;
+      subscription.unsubscribe();
     };
   }, [navigate]);
 
