@@ -6,6 +6,7 @@ import { CartProvider } from "@/lib/cart";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AuthProvider } from "@/features/auth/AuthProvider";
 import { WishlistProvider } from "@/lib/wishlist";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -68,6 +69,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
             <CartProvider>
               {children}
               <CartDrawer />
+              <Toaster richColors position="top-center" />
             </CartProvider>
           </WishlistProvider>
         </AuthProvider>

@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchProducts } from "@/lib/products";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Package, ShoppingBag, Sparkles, Users } from "lucide-react";
+import { fetchAdminStats } from "@/services/admin.service";
 
 export const Route = createFileRoute("/admin")({
-  loader: () => fetchProducts(),
+  loader: async () => {
+    const products = await fetchProducts();
+    const stats = await fetchAdminStats(products.length);
+    return { products, stats };
+  },
   head: () => ({
     meta: [{ title: "Admin — Tryfit" }, { name: "description", content: "Panel administrativo Tryfit." }],
   }),
@@ -14,20 +19,20 @@ export const Route = createFileRoute("/admin")({
 
 function AdminPage() {
   return (
-    <RequireAuth>
+    <RequireAdmin>
       <AdminContent />
-    </RequireAuth>
+    </RequireAdmin>
   );
 }
 
 function AdminContent() {
-  const products = Route.useLoaderData();
+  const { products, stats } = Route.useLoaderData();
 
-  const stats = [
-    { label: "Productos", value: String(products.length), icon: Package },
-    { label: "Pedidos (mock)", value: "2", icon: ShoppingBag },
+  const statCards = [
+    { label: "Productos", value: String(stats.products), icon: Package },
+    { label: "Pedidos", value: String(stats.orders), icon: ShoppingBag },
     { label: "Try-Ons hoy", value: "—", icon: Sparkles },
-    { label: "Usuarios", value: "—", icon: Users },
+    { label: "Usuarios", value: String(stats.users), icon: Users },
   ];
 
   return (
@@ -37,11 +42,11 @@ function AdminContent() {
         Panel <span className="serif-italic">Tryfit</span>
       </h1>
       <p className="mt-4 text-sm text-muted-foreground max-w-xl">
-        Vista previa del backoffice. Las métricas reales llegarán con la base de datos.
+        Métricas sincronizadas con Supabase. El contador de Try-On requiere integración con el servicio de IA.
       </p>
 
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
+        {statCards.map((s) => (
           <div
             key={s.label}
             className="rounded-2xl bg-card p-6 card-shadow flex items-start justify-between"

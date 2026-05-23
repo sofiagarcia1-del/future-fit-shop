@@ -24,6 +24,7 @@ const FOOTER_COLS = [
     links: [
       { label: "Mi cuenta", to: "/account" as const },
       { label: "AI Try-On", to: "/shop" as const },
+      { label: "Mis Try-On", to: "/try-ons" as const },
       { label: "Mis pedidos", to: "/orders" as const },
       { label: "Admin", to: "/admin" as const },
     ],

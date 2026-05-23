@@ -5,6 +5,7 @@ import { useWishlist } from "@/lib/wishlist";
 import { Button } from "@/components/ui/button";
 import { Heart, Package, Sparkles } from "lucide-react";
 import { AccountMeasurementsForm } from "@/components/AccountMeasurementsForm";
+import { AccountPhotoUpload } from "@/components/AccountPhotoUpload";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -52,34 +53,38 @@ function AccountContent() {
           </Button>
         </aside>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Link to="/orders" className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block">
-            <Package className="w-6 h-6 mb-4 text-muted-foreground group-hover:text-foreground smooth" />
-            <h2 className="text-xl">Mis pedidos</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Historial y seguimiento de envíos.</p>
-          </Link>
+        <div className="space-y-8">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Link to="/orders" className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block">
+              <Package className="w-6 h-6 mb-4 text-muted-foreground group-hover:text-foreground smooth" />
+              <h2 className="text-xl">Mis pedidos</h2>
+              <p className="mt-2 text-sm text-muted-foreground">Historial y seguimiento de envíos.</p>
+            </Link>
 
-          <Link to="/wishlist" className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block">
-            <Heart className="w-6 h-6 mb-4 text-muted-foreground group-hover:text-foreground smooth" />
-            <h2 className="text-xl">Wishlist</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {wishlistCount} {wishlistCount === 1 ? "pieza guardada" : "piezas guardadas"}.
-            </p>
-          </Link>
+            <Link to="/wishlist" className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block">
+              <Heart className="w-6 h-6 mb-4 text-muted-foreground group-hover:text-foreground smooth" />
+              <h2 className="text-xl">Wishlist</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {wishlistCount} {wishlistCount === 1 ? "pieza guardada" : "piezas guardadas"}.
+              </p>
+            </Link>
 
-          <Link
-            to="/shop"
-            className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block sm:col-span-2"
-          >
+          <Link to="/try-ons" className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block">
             <Sparkles className="w-6 h-6 mb-4" style={{ color: "var(--accent)" }} />
-            <h2 className="text-xl">Probar con IA</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Explora la colección y activa Virtual Try-On en cualquier prenda.
-            </p>
+            <h2 className="text-xl">Mis Try-On</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Historial de pruebas con FASHN AI.</p>
           </Link>
-        </div>
 
-        <AccountMeasurementsForm />
+          <Link to="/shop" className="group rounded-3xl bg-card p-8 card-shadow hover-lift smooth block">
+            <Sparkles className="w-6 h-6 mb-4 text-muted-foreground group-hover:text-foreground smooth" />
+            <h2 className="text-xl">Probar prendas</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Explora la colección y activa try-on en cualquier pieza.</p>
+          </Link>
+          </div>
+
+          <AccountPhotoUpload />
+          <AccountMeasurementsForm />
+        </div>
       </div>
     </div>
   );

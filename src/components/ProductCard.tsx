@@ -57,7 +57,7 @@ export function ProductCard({ product }: { product: Product }) {
             className="flex-1 h-10 rounded-full text-xs font-medium tracking-wide bg-background/95 backdrop-blur-sm text-foreground hover:bg-background smooth flex items-center justify-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-            Try On
+            Probar
           </button>
           <button
             type="button"

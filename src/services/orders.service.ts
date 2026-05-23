@@ -47,30 +47,38 @@ export async function fetchOrdersFromDb(): Promise<Order[] | null> {
 
   if (!orders?.length) return [];
 
-  const result: Order[] = [];
+  const orderIds = orders.map((o) => o.id as number);
+  const { data: allLines } = await supabase
+    .from("product_x_order")
+    .select("id_order, quantity, unit_price, id_product")
+    .in("id_order", orderIds);
 
-  for (const order of orders) {
-    const { data: lines } = await supabase
-      .from("product_x_order")
-      .select("quantity, unit_price, id_product")
-      .eq("id_order", order.id);
+  const productIds = [...new Set((allLines ?? []).map((l) => l.id_product as number))];
+  let catalog: DbProductCatalogRow[] = [];
 
-    const productIds = (lines ?? []).map((l) => l.id_product as number);
-    let catalog: DbProductCatalogRow[] = [];
+  if (productIds.length > 0) {
+    const { data: products } = await supabase.from("product_catalog").select("*").in("id", productIds);
+    catalog = (products ?? []) as DbProductCatalogRow[];
+  }
 
-    if (productIds.length > 0) {
-      const { data: products } = await supabase.from("product_catalog").select("*").in("id", productIds);
-      catalog = (products ?? []) as DbProductCatalogRow[];
-    }
+  const catalogById = new Map(catalog.map((p) => [p.id, p]));
+  const linesByOrder = new Map<number, typeof allLines>();
 
-    const catalogById = new Map(catalog.map((p) => [p.id, p]));
+  for (const line of allLines ?? []) {
+    const oid = line.id_order as number;
+    const bucket = linesByOrder.get(oid) ?? [];
+    bucket.push(line);
+    linesByOrder.set(oid, bucket);
+  }
 
-    result.push({
+  return orders.map((order) => {
+    const lines = linesByOrder.get(order.id as number) ?? [];
+    return {
       id: `TF-${order.id}`,
       createdAt: (order.created_at as string).slice(0, 10),
       status: mapStatus((order.status as { name: string } | null)?.name ?? "pending"),
       total: Number(order.total_amount),
-      items: (lines ?? []).map((line) => {
+      items: lines.map((line) => {
         const cat = catalogById.get(line.id_product as number);
         const product: Product = cat
           ? mapCatalogToProduct(cat)
@@ -85,10 +93,8 @@ export async function fetchOrdersFromDb(): Promise<Order[] | null> {
             };
         return { product, qty: line.quantity as number };
       }),
-    });
-  }
-
-  return result;
+    };
+  });
 }
 
 export type CreateOrderInput = {

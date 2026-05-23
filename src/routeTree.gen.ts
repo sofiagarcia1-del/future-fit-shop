@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as TryOnsRouteImport } from './routes/try-ons'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -18,10 +19,17 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ApiTryOnRouteImport } from './routes/api/try-on'
+import { Route as ApiTryOnIdRouteImport } from './routes/api/try-on.$id'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TryOnsRoute = TryOnsRouteImport.update({
+  id: '/try-ons',
+  path: '/try-ons',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -64,6 +72,16 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTryOnRoute = ApiTryOnRouteImport.update({
+  id: '/api/try-on',
+  path: '/api/try-on',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTryOnIdRoute = ApiTryOnIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiTryOnRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,9 +90,12 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/orders': typeof OrdersRoute
   '/shop': typeof ShopRoute
+  '/try-ons': typeof TryOnsRoute
   '/wishlist': typeof WishlistRoute
+  '/api/try-on': typeof ApiTryOnRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/try-on/$id': typeof ApiTryOnIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,9 +104,12 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/orders': typeof OrdersRoute
   '/shop': typeof ShopRoute
+  '/try-ons': typeof TryOnsRoute
   '/wishlist': typeof WishlistRoute
+  '/api/try-on': typeof ApiTryOnRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/try-on/$id': typeof ApiTryOnIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,9 +119,12 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/orders': typeof OrdersRoute
   '/shop': typeof ShopRoute
+  '/try-ons': typeof TryOnsRoute
   '/wishlist': typeof WishlistRoute
+  '/api/try-on': typeof ApiTryOnRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/try-on/$id': typeof ApiTryOnIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,9 +135,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/shop'
+    | '/try-ons'
     | '/wishlist'
+    | '/api/try-on'
     | '/auth/callback'
     | '/product/$id'
+    | '/api/try-on/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,9 +149,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/shop'
+    | '/try-ons'
     | '/wishlist'
+    | '/api/try-on'
     | '/auth/callback'
     | '/product/$id'
+    | '/api/try-on/$id'
   id:
     | '__root__'
     | '/'
@@ -130,9 +163,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/shop'
+    | '/try-ons'
     | '/wishlist'
+    | '/api/try-on'
     | '/auth/callback'
     | '/product/$id'
+    | '/api/try-on/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,7 +178,9 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   OrdersRoute: typeof OrdersRoute
   ShopRoute: typeof ShopRoute
+  TryOnsRoute: typeof TryOnsRoute
   WishlistRoute: typeof WishlistRoute
+  ApiTryOnRoute: typeof ApiTryOnRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   ProductIdRoute: typeof ProductIdRoute
 }
@@ -154,6 +192,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/try-ons': {
+      id: '/try-ons'
+      path: '/try-ons'
+      fullPath: '/try-ons'
+      preLoaderRoute: typeof TryOnsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -212,8 +257,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/try-on': {
+      id: '/api/try-on'
+      path: '/api/try-on'
+      fullPath: '/api/try-on'
+      preLoaderRoute: typeof ApiTryOnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/try-on/$id': {
+      id: '/api/try-on/$id'
+      path: '/$id'
+      fullPath: '/api/try-on/$id'
+      preLoaderRoute: typeof ApiTryOnIdRouteImport
+      parentRoute: typeof ApiTryOnRoute
+    }
   }
 }
+
+interface ApiTryOnRouteChildren {
+  ApiTryOnIdRoute: typeof ApiTryOnIdRoute
+}
+
+const ApiTryOnRouteChildren: ApiTryOnRouteChildren = {
+  ApiTryOnIdRoute: ApiTryOnIdRoute,
+}
+
+const ApiTryOnRouteWithChildren = ApiTryOnRoute._addFileChildren(
+  ApiTryOnRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -222,7 +293,9 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   OrdersRoute: OrdersRoute,
   ShopRoute: ShopRoute,
+  TryOnsRoute: TryOnsRoute,
   WishlistRoute: WishlistRoute,
+  ApiTryOnRoute: ApiTryOnRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   ProductIdRoute: ProductIdRoute,
 }

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { CheckCircle2 } from "lucide-react";
 import { createOrderInDb } from "@/services/orders.service";
 import { useAuth } from "@/hooks/useAuth";
 import { isSupabaseConfigured } from "@/lib/db";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -17,12 +19,24 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
+  if (isSupabaseConfigured()) {
+    return (
+      <RequireAuth>
+        <CheckoutContent />
+      </RequireAuth>
+    );
+  }
+  return <CheckoutContent />;
+}
+
+function CheckoutContent() {
   const { items, total, clear } = useCart();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const persistOrders = isSupabaseConfigured() && Boolean(user);
 
   if (items.length === 0 && !done) {
     return (
@@ -43,7 +57,7 @@ function CheckoutPage() {
 
     setSubmitting(true);
 
-    if (isSupabaseConfigured() && user) {
+    if (persistOrders) {
       const created = await createOrderInDb({
         address,
         paymentMethod: "card",
@@ -53,7 +67,12 @@ function CheckoutPage() {
           unitPrice: product.price,
         })),
       });
-      if (created) setOrderId(created.orderId);
+      if (!created) {
+        setSubmitting(false);
+        toast.error("No se pudo registrar el pedido. Revisa tu conexión e inténtalo de nuevo.");
+        return;
+      }
+      setOrderId(created.orderId);
     } else {
       await new Promise((r) => setTimeout(r, 800));
     }
@@ -61,6 +80,7 @@ function CheckoutPage() {
     clear();
     setSubmitting(false);
     setDone(true);
+    if (persistOrders) toast.success("Pedido confirmado");
   };
 
   if (done) {
@@ -121,7 +141,7 @@ function CheckoutPage() {
             {submitting ? "Procesando…" : `Pagar $${total}`}
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            {isSupabaseConfigured() && user
+            {persistOrders
               ? "El pedido se guardará en tu cuenta Tryfit."
               : "Modo demo — inicia sesión con Supabase para persistir pedidos."}
           </p>

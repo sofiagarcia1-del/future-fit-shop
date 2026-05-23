@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ShoppingBag, Search, Menu, Heart, User, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { Button } from "@/components/ui/button";
@@ -20,15 +20,29 @@ const MOBILE_LINKS = [
   { to: "/shop" as const, label: "Tienda" },
   { to: "/wishlist" as const, label: "Wishlist" },
   { to: "/orders" as const, label: "Mis pedidos" },
+  { to: "/try-ons" as const, label: "Mis Try-On" },
   { to: "/account" as const, label: "Mi cuenta" },
 ];
 
 export function Navbar() {
+  const navigate = useNavigate();
   const { count, setOpen } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const submitSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    void navigate({ to: "/shop", search: { q } });
+    setSearchOpen(false);
+    setSearchQuery("");
+    setMobileOpen(false);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -70,9 +84,36 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="hidden sm:inline-flex hover:bg-muted">
-              <Search className="w-[18px] h-[18px]" />
-            </Button>
+            <div className="hidden sm:flex items-center">
+              {searchOpen ? (
+                <form onSubmit={submitSearch} className="flex items-center gap-2">
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar…"
+                    autoFocus
+                    className="h-9 w-44 rounded-full border border-border bg-background px-3 text-xs focus:outline-none focus:border-foreground"
+                  />
+                  <Button type="submit" variant="ghost" size="sm" className="text-xs">
+                    Ir
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => setSearchOpen(false)}>
+                    ×
+                  </Button>
+                </form>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-muted"
+                  onClick={() => setSearchOpen(true)}
+                  aria-label="Buscar"
+                >
+                  <Search className="w-[18px] h-[18px]" />
+                </Button>
+              )}
+            </div>
 
             <Button
               variant="ghost"

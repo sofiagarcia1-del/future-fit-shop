@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,9 @@ export function AccountMeasurementsForm() {
     if (updated) {
       setProfile(updated);
       setSaved(true);
+      toast.success("Perfil actualizado");
+    } else {
+      toast.error("No se pudo guardar el perfil");
     }
   };
 

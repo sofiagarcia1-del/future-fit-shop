@@ -1,11 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts, type Product } from "@/lib/products";
 import { sortProducts, type SortOption } from "@/lib/sort-products";
 import { SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
+
+type ShopSearch = {
+  q?: string;
+};
 
 export const Route = createFileRoute("/shop")({
+  validateSearch: (search: Record<string, unknown>): ShopSearch => ({
+    q: typeof search.q === "string" ? search.q : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Tienda — Tryfit" },
@@ -20,10 +29,31 @@ export const Route = createFileRoute("/shop")({
 
 function Shop() {
   const products = Route.useLoaderData() as Product[];
+  const { q: queryFromUrl } = Route.useSearch();
   const categories = ["Todo", ...Array.from(new Set(products.map((p) => p.category)))];
   const [active, setActive] = useState("Todo");
   const [sort, setSort] = useState<SortOption>("Destacados");
-  const filtered = active === "Todo" ? products : products.filter((p) => p.category === active);
+  const [query, setQuery] = useState(queryFromUrl ?? "");
+
+  useEffect(() => {
+    setQuery(queryFromUrl ?? "");
+  }, [queryFromUrl]);
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filtered = useMemo(() => {
+    let list = active === "Todo" ? products : products.filter((p) => p.category === active);
+    if (normalizedQuery) {
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(normalizedQuery) ||
+          p.brand.toLowerCase().includes(normalizedQuery) ||
+          p.category.toLowerCase().includes(normalizedQuery),
+      );
+    }
+    return list;
+  }, [products, active, normalizedQuery]);
+
   const visible = useMemo(() => sortProducts(filtered, sort), [filtered, sort]);
 
   return (
@@ -48,14 +78,23 @@ function Shop() {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] hover:text-foreground text-muted-foreground">
-            <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
-          </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="sr-only" htmlFor="shop-search">
+            Buscar productos
+          </label>
+          <input
+            id="shop-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar marca o prenda…"
+            className="bg-transparent border border-border rounded-full px-4 py-2 text-xs min-w-[200px] focus:outline-none focus:border-foreground smooth"
+          />
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
             className="bg-transparent border border-border rounded-full px-4 py-2 text-xs uppercase tracking-[0.14em] focus:outline-none focus:border-foreground smooth"
+            aria-label="Ordenar productos"
           >
             {["Destacados", "Novedades", "Precio: menor a mayor", "Precio: mayor a menor"].map((s) => (
               <option key={s}>{s}</option>
@@ -64,9 +103,36 @@ function Shop() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-        {visible.map((p) => <ProductCard key={p.id} product={p} />)}
-      </div>
+      {visible.length === 0 ? (
+        <div className="text-center py-24 rounded-3xl bg-card card-shadow">
+          <SlidersHorizontal className="w-10 h-10 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">No hay resultados para tu búsqueda o filtro.</p>
+          <Button
+            variant="outline"
+            className="mt-6 rounded-full"
+            onClick={() => {
+              setQuery("");
+              setActive("Todo");
+            }}
+          >
+            Limpiar filtros
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+          {visible.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      )}
+
+      {normalizedQuery && (
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          <Link to="/shop" search={{}} className="underline-grow">
+            Ver toda la colección
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

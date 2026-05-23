@@ -108,3 +108,17 @@ export type DbNotification = {
 export type UserProfileUpdate = Partial<
   Pick<DbUser, "first_name" | "last_name" | "phone" | "birth_date" | "id_gender" | "height" | "weight" | "chest" | "waist" | "hips">
 >;
+
+export type DbTryOnResult = {
+  id: number;
+  id_user: number;
+  id_product: number;
+  original_user_image: string | null;
+  garment_image: string;
+  generated_image: string | null;
+  fashn_prediction_id: string | null;
+  id_status: number;
+  error_message: string | null;
+  saved: boolean;
+  created_at: string;
+};

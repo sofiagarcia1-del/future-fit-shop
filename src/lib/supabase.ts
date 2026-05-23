@@ -1,22 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
+import { getSupabasePublicKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/env";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
+const supabaseUrl = getSupabaseUrl();
+const supabasePublicKey = getSupabasePublicKey();
 
-if (import.meta.env.DEV && (!supabaseUrl || !supabaseAnonKey)) {
+if (import.meta.env.DEV && !isSupabaseConfigured()) {
   console.warn(
-    "[Tryfit] Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY. Copia .env.example a .env y configura Supabase.",
+    "[Tryfit] Faltan VITE_SUPABASE_URL y VITE_SUPABASE_PUBLISHABLE_KEY (o VITE_SUPABASE_ANON_KEY). Copia .env.example a .env.",
   );
 }
 
 export const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",
-  supabaseAnonKey || "placeholder",
+  supabasePublicKey || "placeholder",
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
     },
-  }
+  },
 );

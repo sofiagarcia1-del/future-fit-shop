@@ -117,7 +117,7 @@ function ProductPage() {
 
           <div className="mt-8 flex flex-col gap-2.5">
             <Button size="lg" className="w-full h-14 rounded-full btn-primary-bg border-0 hover:opacity-90 text-sm uppercase tracking-[0.16em]" onClick={() => setTryOn(true)}>
-              <Sparkles className="w-4 h-4 mr-2" style={{ color: "var(--accent)" }} /> Probar con IA
+              <Sparkles className="w-4 h-4 mr-2" style={{ color: "var(--accent)" }} /> Probar cómo me queda
             </Button>
             <div className="grid grid-cols-[1fr_auto] gap-2.5">
               <Button size="lg" variant="outline" className="h-14 rounded-full border-foreground/30 hover:bg-muted text-sm uppercase tracking-[0.16em]" onClick={() => { add(product); setOpen(true); }}>
