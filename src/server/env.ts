@@ -1,16 +1,15 @@
-/** Server-only environment (Cloudflare Workers + Node dev). */
-
-import { env as cloudflareEnv } from "cloudflare:workers";
+/** Server-only environment (Cloudflare Workers + Node/Vite dev SSR). */
 
 function getBindings(): Record<string, string | undefined> {
-  try {
-    if (cloudflareEnv && typeof cloudflareEnv === "object") {
-      return cloudflareEnv as Record<string, string | undefined>;
-    }
-  } catch {
-    /* fuera de Workers */
+  if (typeof process !== "undefined" && process.env) {
+    return process.env as Record<string, string | undefined>;
   }
-  return process.env as Record<string, string | undefined>;
+
+  if (typeof import.meta !== "undefined" && import.meta.env) {
+    return import.meta.env as unknown as Record<string, string | undefined>;
+  }
+
+  return {};
 }
 
 function read(key: string): string | undefined {

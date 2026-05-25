@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2 } from "lucide-react";
 import { createOrderInDb } from "@/services/orders.service";
+import { calculateOrderPricing, formatPricingHint } from "@/services/pricing.service";
+import { validateCartStock } from "@/services/inventory.service";
+import { createOrderNotification } from "@/services/notifications.service";
 import { useAuth } from "@/hooks/useAuth";
 import { isSupabaseConfigured } from "@/lib/db";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -30,7 +33,10 @@ function CheckoutPage() {
 }
 
 function CheckoutContent() {
-  const { items, total, clear } = useCart();
+  const { items, clear } = useCart();
+  const lineItems = items.map(({ product, qty }) => ({ unitPrice: product.price, qty }));
+  const pricing = calculateOrderPricing(lineItems);
+  const total = pricing.total;
   const navigate = useNavigate();
   const { user } = useAuth();
   const [done, setDone] = useState(false);
@@ -57,6 +63,14 @@ function CheckoutContent() {
 
     setSubmitting(true);
 
+    const stockCheck = validateCartStock(items);
+    if (!stockCheck.valid) {
+      setSubmitting(false);
+      const names = stockCheck.errors.map((e) => `${e.productName} (máx. ${e.available})`).join(", ");
+      toast.error(`Stock insuficiente: ${names}`);
+      return;
+    }
+
     if (persistOrders) {
       const created = await createOrderInDb({
         address,
@@ -73,6 +87,7 @@ function CheckoutContent() {
         return;
       }
       setOrderId(created.orderId);
+      await createOrderNotification(created.orderId);
     } else {
       await new Promise((r) => setTimeout(r, 800));
     }
@@ -162,9 +177,28 @@ function CheckoutContent() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 pt-6 border-t border-border flex justify-between">
-            <span className="text-muted-foreground">Total</span>
-            <span className="font-display italic text-2xl tabular-nums">${total}</span>
+          <div className="mt-6 pt-6 border-t border-border space-y-2 text-sm">
+            <div className="flex justify-between text-muted-foreground">
+              <span>Subtotal</span>
+              <span className="tabular-nums">${pricing.subtotal}</span>
+            </div>
+            {pricing.discount > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <span>Descuento por volumen</span>
+                <span className="tabular-nums">−${pricing.discount}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-muted-foreground">
+              <span>Envío</span>
+              <span className="tabular-nums">{pricing.shipping === 0 ? "Gratis" : `$${pricing.shipping}`}</span>
+            </div>
+            <div className="flex justify-between pt-2">
+              <span className="text-muted-foreground">Total</span>
+              <span className="font-display italic text-2xl tabular-nums">${total}</span>
+            </div>
+            {formatPricingHint(pricing) && (
+              <p className="text-xs text-muted-foreground pt-1">{formatPricingHint(pricing)}</p>
+            )}
           </div>
         </aside>
       </div>

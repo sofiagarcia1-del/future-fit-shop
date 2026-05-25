@@ -1,6 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { fetchProduct, fetchProducts, type Product } from "@/lib/products";
+import { fetchProduct, fetchProducts } from "@/lib/products";
+import { getRelatedProducts } from "@/services/recommendations.service";
+import { getStockLabel } from "@/services/inventory.service";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ShoppingBag, Heart, ArrowLeft } from "lucide-react";
 import { useCart } from "@/lib/cart";
@@ -14,7 +16,7 @@ export const Route = createFileRoute("/product/$id")({
     const product = await fetchProduct(params.id);
     if (!product) throw notFound();
     const all = await fetchProducts();
-    return { product, related: all.filter((p) => p.id !== product.id).slice(0, 4) };
+    return { product, related: getRelatedProducts(product, all, 4) };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
@@ -76,6 +78,9 @@ function ProductPage() {
           <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{product.brand}</p>
           <h1 className="text-3xl md:text-4xl mt-2 leading-tight">{product.name}</h1>
           <p className="text-2xl mt-4 font-display italic">${product.price}</p>
+          <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            {getStockLabel(product.id)}
+          </p>
 
           <p className="mt-8 text-sm text-muted-foreground leading-relaxed">{product.description}</p>
 

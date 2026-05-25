@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { toShopSearchParams } from "@/lib/shop-search";
 import { ShoppingBag, Search, Menu, Heart, User, Sparkles } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { useCart } from "@/lib/cart";
@@ -8,20 +9,23 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const NAV = [
-  { to: "/" as const, label: "Inicio" },
-  { to: "/shop" as const, label: "Mujer" },
-  { to: "/shop" as const, label: "Hombre" },
-  { to: "/shop" as const, label: "Marcas" },
-  { to: "/shop" as const, label: "Categorías" },
+  { to: "/" as const, label: "Inicio", search: undefined },
+  { to: "/shop" as const, label: "Mujer", search: toShopSearchParams({ audience: "women" }) },
+  { to: "/shop" as const, label: "Hombre", search: toShopSearchParams({ audience: "men" }) },
+  { to: "/shop" as const, label: "Marcas", search: toShopSearchParams({ view: "brands" }) },
+  { to: "/shop" as const, label: "Categorías", search: toShopSearchParams({ view: "categories" }) },
 ];
 
 const MOBILE_LINKS = [
-  { to: "/" as const, label: "Inicio" },
-  { to: "/shop" as const, label: "Tienda" },
-  { to: "/wishlist" as const, label: "Wishlist" },
-  { to: "/orders" as const, label: "Mis pedidos" },
-  { to: "/try-ons" as const, label: "Mis Try-On" },
-  { to: "/account" as const, label: "Mi cuenta" },
+  { to: "/" as const, label: "Inicio", search: undefined },
+  { to: "/shop" as const, label: "Mujer", search: toShopSearchParams({ audience: "women" }) },
+  { to: "/shop" as const, label: "Hombre", search: toShopSearchParams({ audience: "men" }) },
+  { to: "/shop" as const, label: "Marcas", search: toShopSearchParams({ view: "brands" }) },
+  { to: "/shop" as const, label: "Categorías", search: toShopSearchParams({ view: "categories" }) },
+  { to: "/wishlist" as const, label: "Wishlist", search: undefined },
+  { to: "/orders" as const, label: "Mis pedidos", search: undefined },
+  { to: "/try-ons" as const, label: "Mis Try-On", search: undefined },
+  { to: "/account" as const, label: "Mi cuenta", search: undefined },
 ];
 
 export function Navbar() {
@@ -69,8 +73,13 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.14em] text-foreground/75">
-            {NAV.map((n, i) => (
-              <Link key={i} to={n.to} className="underline-grow smooth hover:text-foreground">
+            {NAV.map((n) => (
+              <Link
+                key={n.label}
+                to={n.to}
+                search={n.search}
+                className="underline-grow smooth hover:text-foreground"
+              >
                 {n.label}
               </Link>
             ))}
@@ -209,8 +218,9 @@ export function Navbar() {
           <nav className="flex flex-col px-6 py-6 gap-1 flex-1">
             {MOBILE_LINKS.map((link) => (
               <Link
-                key={link.to + link.label}
+                key={link.label}
                 to={link.to}
+                search={link.search}
                 onClick={() => setMobileOpen(false)}
                 className="py-3 text-sm uppercase tracking-[0.16em] border-b border-border/60 hover:text-foreground text-muted-foreground smooth"
               >

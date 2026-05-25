@@ -1,10 +1,11 @@
 import { supabase } from "@/lib/supabase";
 import { isSupabaseConfigured } from "@/lib/db";
 import type { Product } from "@/lib/products";
+import { enrichProductAudience } from "@/lib/product-audience";
 import type { DbProductCatalogRow } from "@/types/database";
 
 function mapRow(row: DbProductCatalogRow): Product {
-  return {
+  return enrichProductAudience({
     id: String(row.id),
     name: row.name,
     price: Number(row.unit_price),
@@ -12,7 +13,7 @@ function mapRow(row: DbProductCatalogRow): Product {
     brand: row.brand,
     image: row.image_url,
     description: row.description ?? "",
-  };
+  });
 }
 
 export async function fetchProductsFromDb(): Promise<Product[] | null> {

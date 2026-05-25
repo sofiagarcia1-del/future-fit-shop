@@ -4,4 +4,8 @@
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "VITE_SUPABASE_URL": "https://hxmzhbcvqbqxnuvnrvzh.supabase.co",
+  "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_zOPqPATTKmK1myMJmXJeKA_XKn8rGY9",
+  "VITE_APP_URL": "https://tanstack-start-app.juan-andraus1.workers.dev"
 }
+

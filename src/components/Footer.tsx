@@ -1,13 +1,14 @@
 import { Link } from "@tanstack/react-router";
+import { toShopSearchParams } from "@/lib/shop-search";
 
 const FOOTER_COLS = [
   {
     t: "Tienda",
     links: [
-      { label: "Mujer", to: "/shop" as const },
-      { label: "Hombre", to: "/shop" as const },
-      { label: "Marcas", to: "/shop" as const },
-      { label: "Novedades", to: "/shop" as const },
+      { label: "Mujer", to: "/shop" as const, search: toShopSearchParams({ audience: "women" }) },
+      { label: "Hombre", to: "/shop" as const, search: toShopSearchParams({ audience: "men" }) },
+      { label: "Marcas", to: "/shop" as const, search: toShopSearchParams({ view: "brands" }) },
+      { label: "Categorías", to: "/shop" as const, search: toShopSearchParams({ view: "categories" }) },
     ],
   },
   {
@@ -47,7 +48,11 @@ export function Footer() {
             <ul className="space-y-2.5 text-muted-foreground">
               {c.links.map((item) => (
                 <li key={item.label}>
-                  <Link to={item.to} className="hover:text-foreground smooth">
+                  <Link
+                    to={item.to}
+                    search={"search" in item ? item.search : undefined}
+                    className="hover:text-foreground smooth"
+                  >
                     {item.label}
                   </Link>
                 </li>
